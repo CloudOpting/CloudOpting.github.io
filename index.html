@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<title>title</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="" />
+	<meta name="robots" content="index,follow" />
+	<link rel="stylesheet" type="text/css" href="styles.css" />
+	
+<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular.min.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular-sanitize.js"></script>
+<script src="markdown.js"></script>
+</head>
+
+<body>
+<p>This is the GitHub page of the CloudOpting project.</p>
+
+The project manages a set of repositories to implement its core features; the main ones are the following:
+cloudopting-manager
+<ul>
+	<li>cloudopting-manager</li>
+	<li>iso_scripts</li>
+</ul>
+
+ <div ng-app="myApp" ng-controller="customersCtrl">
+
+<p ng-bind-html="readme_cm"></p>
+<p ng-bind-html="readme_is"></p>
+
+</div>
+
+<script>
+var app = angular.module('myApp', ['ngSanitize']);
+app.config(['$httpProvider', function($httpProvider) {
+        $httpProvider.defaults.useXDomain = true;
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    }
+]);
+app.controller('customersCtrl', function($scope, $http) {
+$http.defaults.useXDomain = true;
+delete $http.defaults.headers.common['X-Requested-With'];
+    $http.get("https://rawgit.com/CloudOpting/cloudopting-manager/master/README.md")
+    .success(function(response) {
+	md_content = "Hello.\n\n* This is markdown.\n* It is fun\n* Love it or leave it."
+$scope.readme_cm = markdown.toHTML( response ,'Maruku');
+console.log(response);
+})
+.error(function(data, status, headers, config) {
+			console.log(status);
+			console.log(data);
+        });
+
+$http.get("https://rawgit.com/CloudOpting/iso_scripts/master/README.md")
+    .success(function(response1) {
+$scope.readme_is = markdown.toHTML( response1 ,'Maruku');
+console.log(response1);
+})
+.error(function(data, status, headers, config) {
+			console.log(status);
+			console.log(data);
+        });
+});
+</script> 
+
+</body>
+</html>
