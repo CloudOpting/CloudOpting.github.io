@@ -6,7 +6,8 @@
 	<meta name="description" content="" />
 	<meta name="keywords" content="" />
 	<meta name="robots" content="index,follow" />
-	<link rel="stylesheet" type="text/css" href="styles.css" />
+	<link rel="stylesheet" type="text/css" href="bootstrap1.css" />
+	<link rel="stylesheet" type="text/css" href="bootstrap_assets.css" />
 	
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular-sanitize.js"></script>
@@ -14,22 +15,30 @@
 </head>
 
 <body>
+<div class="container">
+<div class="jumbotron">
+  <h1>CloudOpting GitHub</h1>
 <p>This is the GitHub page of the CloudOpting project.</p>
+<p>The project manages a set of repositories to implement its core features.</p>
+  <p><a class="btn btn-primary btn-lg" href="http://www.cloudopting.eu">Learn more</a></p>
+</div>
 
-The project manages a set of repositories to implement its core features; the main ones are the following:
-cloudopting-manager
-<ul>
-	<li>cloudopting-manager</li>
-	<li>iso_scripts</li>
+The main ones are the following:
+<nav class="navbar navbar-default">
+<div class="navbar-collapse collapse" id="navbar-main">
+<ul class="nav navbar-nav">
+	<li><a href="">cloudopting-manager</a></li>
+	<li><a href="">iso_scripts</a></li>
 </ul>
-
+</div>
+</nav>
  <div ng-app="myApp" ng-controller="customersCtrl">
 
 <p ng-bind-html="readme_cm"></p>
 <p ng-bind-html="readme_is"></p>
 
 </div>
-
+</div>
 <script>
 var app = angular.module('myApp', ['ngSanitize']);
 app.config(['$httpProvider', function($httpProvider) {
