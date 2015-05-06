@@ -13,9 +13,67 @@
 <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular.min.js"></script>
   <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.0-rc.0/angular-sanitize.js"></script>
 <script src="markdown.js"></script>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<style>
+ 
+#tooltip {
+position: absolute;
+width: 220px;
+height: auto;
+padding: 10px;
+background-color: white;
+-webkit-border-radius: 10px;
+-moz-border-radius: 10px;
+border-radius: 10px;
+-webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+-moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+pointer-events: none;
+}
+ 
+#tooltip.hidden1 {
+display: none;
+}
+ 
+#tooltip p {
+margin: 0;
+font-family: sans-serif;
+font-size: 16px;
+line-height: 20px;
+}
+ 
+.axis text {
+font: 10px sans-serif;
+}
+ 
+.axis path,
+.axis line {
+fill: none;
+stroke: #000;
+shape-rendering: crispEdges;
+}
+ 
+.x.axis path {
+display: none;
+}
+ 
+rect {
+-moz-transition: all 0.3s;
+-o-transition: all 0.3s;
+-webkit-transition: all 0.3s;
+transition: all 0.5s;
+cursor:pointer;
+}
+ 
+</style>
 </head>
 
 <body>
+<div id="tooltip">
+<img src="" id="pic" style='width:4em;'/> &nbsp;
+<span id="committer" style='line-height:3em; font:2em sans-serif;'></span>
+<p><span id="value"></span></p>
+</div>
 <div class="container">
 <div class="jumbotron">
   <h1>CloudOpting GitHub</h1>
@@ -32,6 +90,111 @@ The main ones are the following:
 <div id="myTabContent" class="tab-content" ng-app="myApp" ng-controller="customersCtrl">
   <div class="tab-pane fade active in" id="cm">
 <p ng-bind-html="readme_cm"></p>
+<svg class="chart"></svg>
+<script>
+ d3.select("#tooltip").classed("hidden1", true);
+var margin = {top: 20, right: 30, bottom: 30, left: 40},
+width = 960 - margin.left - margin.right,
+height = 500 - margin.top - margin.bottom;
+ 
+var x = d3.scale.ordinal()
+.rangeRoundBands([0, width], .1);
+ 
+var y = d3.scale.linear()
+.range([height, 0]);
+ 
+var xAxis = d3.svg.axis()
+.scale(x)
+.orient("bottom");
+ 
+var yAxis = d3.svg.axis()
+.scale(y)
+.orient("left");
+ 
+var chart = d3.select(".chart")
+.attr("width", width + margin.left + margin.right)
+.attr("height", height + margin.top + margin.bottom)
+.append("g")
+.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+ 
+var data;
+ 
+d3.json("https://api.github.com/repos/CloudOpting/cloudopting-manager/contributors", function(error, json) {
+ 
+if (error) return console.warn(error);
+ 
+data = json;
+x.domain(data.map(function(d) { return d.login; }));
+y.domain([0, d3.max(data, function(d) { return d.contributions; })]);
+chart.append("g")
+.attr("class", "x axis")
+.attr("transform", "translate(0," + height + ")")
+.call(xAxis);
+ 
+chart.append("g")
+.attr("class", "y axis")
+.call(yAxis);
+ 
+ 
+chart.selectAll(".bar")
+.data(data)
+.enter()
+.append("rect")
+.attr("class", "bar")
+.attr("id", function(d) { return 'bar'+d.login;})
+.attr("x", function(d) { return x(d.login); })
+.attr("y", function(d) { return y(d.contributions); })
+.attr("height", function(d) { return height - y(d.contributions); })
+.attr("width", x.rangeBand())
+.attr("fill", function(d) { return "rgb(" + Math.round(d.contributions * 1) + ",10, 100)"; })
+ 
+.on("click", function(d){
+window.open(d.html_url, '_blank', 'location=yes,height=600,width=960,scrollbars=yes,status=yes');
+})
+ 
+.on("mouseover", function(d) {
+d3.select(this)
+.transition()
+.duration(50)
+.attr("fill", "#CC0000");
+//Get this bar's x/y values, then augment for the tooltip
+var xPosition = parseFloat(d3.select(this).attr("x")) + x.rangeBand() / 2;
+var yPosition = parseFloat(d3.select(this).attr("y")) / 2 + height / 2;
+//Update the tooltip position and value
+d3.select("#tooltip")
+.style("left", xPosition + "px")
+.style("top", yPosition + "px")
+.select("#value")
+.text(d.contributions);
+ 
+d3.select("#committer")
+.text(d.login);
+ 
+d3.select("#pic")
+.attr("src",d.avatar_url);
+//Show the tooltip
+d3.select("#tooltip").classed("hidden1", false);
+})
+ 
+.on("mouseout", function() {
+d3.select(this)
+.transition()
+.delay(100)
+.duration(250)
+.attr("fill", function(d) { return "rgb(" + Math.round(d.contributions * 1) + ",10, 100)"; })
+ 
+//Hide the tooltip
+d3.select("#tooltip").classed("hidden1", true);
+ 
+})
+.append("title")
+.text(function(d) {  return d.login + " commits done: " + d.contributions;});
+;
+ 
+});
+
+ 
+</script>
 </div>
   <div class="tab-pane fade " id="is">
 <p ng-bind-html="readme_is"></p>
